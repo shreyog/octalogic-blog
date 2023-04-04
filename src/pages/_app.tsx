@@ -29,7 +29,7 @@ export default function MyApp(props: MyAppProps) {
         <Header />
         {/* //TODO: need to add a header and a footer */}
         <Component {...pageProps} />
-        <Footer />
+        {/* <Footer /> */}
       </ThemeProvider>
     </CacheProvider>
   );
