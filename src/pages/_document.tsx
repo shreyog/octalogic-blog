@@ -9,6 +9,7 @@ export default class MyDocument extends Document {
   render() {
     return (
       <Html lang="en" className={comfortaa.className}>
+        
         <Head>
           <meta name="theme-color" content={theme.palette.primary.main} />
           <meta
