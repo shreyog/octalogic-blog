@@ -8,6 +8,8 @@ import Grid from "@mui/material/Grid";
 import { useTina } from "tinacms/dist/react";
 import client from "../../tina/__generated__/client";
 
+import Header from "@/components/header/header";
+
 import IPostListProps from "@/interfaces/IPostListProps";
 
 const InteractiveList = (props: IPostListProps) => {
@@ -21,7 +23,7 @@ const InteractiveList = (props: IPostListProps) => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
+      {/* <Grid item xs={12} md={6}>
         <List>
           {postsList.map((post: any) => (
             <ListItem key={post.node.id}>
@@ -29,7 +31,7 @@ const InteractiveList = (props: IPostListProps) => {
             </ListItem>
           ))}
         </List>
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 };
