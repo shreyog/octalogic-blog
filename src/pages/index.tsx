@@ -7,6 +7,8 @@ import { styled } from "@mui/material/styles";
 import { useTina } from "tinacms/dist/react";
 import client from "../../tina/__generated__/client";
 
+import Link from "@/components/link/link";
+
 import IPostListProps from "@/interfaces/IPostListProps";
 
 import { PostObjType, POSTS, HERO_POST } from "@/constants/posts";
@@ -15,13 +17,17 @@ type CustomTypographyProps = {
   size: string;
 };
 
-type CustomButtonProps = {
-  customSize: string;
+type CustomVariants = {
+  [key: string]: {
+    fontSize: string;
+    lineHeight: string;
+  };
 };
 
-const BLOG_CARD_SIZE_OPTIONS = {
+export const BLOG_CARD_SIZE_OPTIONS = {
   large: "large",
   medium: "medium",
+  small: "small",
 };
 
 const TOPIC_TEXT_VARIANTS: {
@@ -36,7 +42,11 @@ const TOPIC_TEXT_VARIANTS: {
   },
   medium: {
     fontSize: "1.125rem",
-    lineHeight: "1.125rem",
+    lineHeight: "1.145rem",
+  },
+  small: {
+    fontSize: ".625rem",
+    lineHeight: ".825rem",
   },
 };
 
@@ -48,12 +58,7 @@ const TopicText = styled(Typography)<CustomTypographyProps>((props) => ({
   fontWeight: 700,
 }));
 
-const BLOG_HEADING_TEXT_VARIANTS: {
-  [key: string]: {
-    fontSize: string;
-    lineHeight: string;
-  };
-} = {
+const BLOG_HEADING_TEXT_VARIANTS: CustomVariants = {
   large: {
     fontSize: "4rem",
     lineHeight: "4.5rem",
@@ -61,6 +66,10 @@ const BLOG_HEADING_TEXT_VARIANTS: {
   medium: {
     fontSize: "2rem",
     lineHeight: "2.5rem",
+  },
+  small: {
+    fontSize: "1rem",
+    lineHeight: "1.5rem",
   },
 };
 
@@ -71,19 +80,18 @@ const BlogHeadingText = styled(Typography)<CustomTypographyProps>((props) => ({
   fontWeight: 700,
 }));
 
-const BLOG_SUMMARY_TEXT_VARIANTS: {
-  [key: string]: {
-    fontSize: string;
-    lineHeight: string;
-  };
-} = {
+const BLOG_SUMMARY_TEXT_VARIANTS: CustomVariants = {
   large: {
     fontSize: "1.75rem",
-    lineHeight: "1.75rem",
+    lineHeight: "1.95rem",
   },
   medium: {
     fontSize: "1.125rem",
-    lineHeight: "1.125rem",
+    lineHeight: "1.325rem",
+  },
+  small: {
+    fontSize: ".625rem",
+    lineHeight: ".825rem",
   },
 };
 
@@ -94,19 +102,18 @@ const BlogSummaryText = styled(Typography)<CustomTypographyProps>((props) => ({
   color: "#6B7280",
 }));
 
-const TAG_VARIANTS: {
-  [key: string]: {
-    fontSize: string;
-    lineHeight: string;
-  };
-} = {
+const TAG_VARIANTS: CustomVariants = {
   large: {
     fontSize: "1.75rem",
-    lineHeight: "1.75rem",
+    lineHeight: "1.95rem",
   },
   medium: {
     fontSize: "1.125rem",
-    lineHeight: "1.125rem",
+    lineHeight: "1.325rem",
+  },
+  small: {
+    fontSize: ".625rem",
+    lineHeight: ".825rem",
   },
 };
 
@@ -119,29 +126,20 @@ const Tag = styled(Typography)<CustomTypographyProps>((props) => ({
   padding: "0.625rem 1.875rem",
 }));
 
-const READ_MORE_BTN_VARIANTS: {
-  [key: string]: {
-    fontSize: string;
-    lineHeight: string;
-  };
-} = {
+const READ_MORE_LINK_VARIANTS: CustomVariants = {
   large: {
     fontSize: "1.75rem",
-    lineHeight: "1.75rem",
+    lineHeight: "1.95rem",
   },
   medium: {
     fontSize: "1.125rem",
-    lineHeight: "1.125rem",
+    lineHeight: "1.325rem",
+  },
+  small: {
+    fontSize: ".625rem",
+    lineHeight: ".825rem",
   },
 };
-
-const ReadMoreBtn = styled(Button)<CustomButtonProps>((props) => ({
-  ...(props.customSize
-    ? READ_MORE_BTN_VARIANTS[props.customSize as keyof {}]
-    : READ_MORE_BTN_VARIANTS[BLOG_CARD_SIZE_OPTIONS.medium as keyof {}]),
-  color: "#6B7280",
-  textDecoration: "underline",
-}));
 
 const Tags = ({ tags, size }: any) => {
   return (
@@ -157,7 +155,13 @@ const truncate = ({ words = "", maxlength = 450 }) => {
   return `${words.slice(0, maxlength)} …`;
 };
 
-const BlogPostCard = ({ post, size }: { post: PostObjType; size: string }) => (
+export const BlogPostCard = ({
+  post,
+  size,
+}: {
+  post: PostObjType;
+  size: string;
+}) => (
   <Grid>
     <Grid item>
       <TopicText size={size}>{post.topic}</TopicText>
@@ -197,7 +201,20 @@ const BlogPostCard = ({ post, size }: { post: PostObjType; size: string }) => (
           xs={12}
           sm={3}
         >
-          <ReadMoreBtn customSize={size}>Read More</ReadMoreBtn>
+          <Link
+            href={`posts/${post.url}`}
+            color="info.main"
+            sx={{
+              color: "#6B7280",
+              ...(size
+                ? READ_MORE_LINK_VARIANTS[size as keyof {}]
+                : READ_MORE_LINK_VARIANTS[
+                    BLOG_CARD_SIZE_OPTIONS.medium as keyof {}
+                  ]),
+            }}
+          >
+            Read More
+          </Link>
         </Grid>
       </Grid>
     </Grid>
@@ -267,7 +284,8 @@ const InteractiveList = (props: IPostListProps) => {
   return (
     <Grid
       container
-      sx={{ paddingX: { xs: "4rem", sm: "9rem", xl: "12.5rem" } }}
+      // sx={{ paddingX: { xs: "4rem", sm: "9rem", xl: "12.5rem" } }}
+      className="global-spacer"
     >
       <Grid
         sx={{
