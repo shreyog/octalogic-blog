@@ -1,7 +1,8 @@
 import * as React from "react";
+import v from "voca";
 
 import Grid from "@mui/material/Grid";
-import { Typography, Button } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { useTina } from "tinacms/dist/react";
@@ -11,7 +12,9 @@ import Link from "@/components/link/link";
 
 import IPostListProps from "@/interfaces/IPostListProps";
 
-import { PostObjType, POSTS, HERO_POST } from "@/constants/posts";
+import { HERO_POST } from "@/constants/posts";
+
+import { Post } from "@/interfaces/IPostProps";
 
 type CustomTypographyProps = {
   size: string;
@@ -141,7 +144,7 @@ const READ_MORE_LINK_VARIANTS: CustomVariants = {
   },
 };
 
-const Tags = ({ tags, size }: any) => {
+const Tags = ({ tags, size }: { tags: string[]; size: string }) => {
   return (
     <Grid container alignItems="center" sx={{ gap: "0.5rem" }}>
       {React.Children.toArray(
@@ -155,67 +158,72 @@ const truncate = ({ words = "", maxlength = 450 }) => {
   return `${words.slice(0, maxlength)} …`;
 };
 
-export const BlogPostCard = ({
-  post,
-  size,
-}: {
-  post: PostObjType;
-  size: string;
-}) => (
-  <Grid>
-    <Grid item>
-      <TopicText size={size}>{post.topic}</TopicText>
+export const BlogPostCard = ({ post, size }: { post: Post; size: string }) => (
+  <Grid
+    container
+    // direction="column"
+    justifyContent="space-between"
+    // sx={{minHeight: "40rem"}}
+  >
+    <Grid item xs={12}>
+      <Grid item>
+        <TopicText size={size}>
+          {v.titleCase(post?.categories?.replaceAll("-", " ") || "")}
+        </TopicText>
+      </Grid>
+      <Grid item sx={{ marginTop: "0.6rem" }}>
+        <BlogHeadingText size={size}>{post.title}</BlogHeadingText>
+      </Grid>
+      <Grid item sx={{ marginTop: "2rem" }}>
+        <BlogSummaryText size={size}>
+          {truncate({
+            words: post.summary,
+          })}
+        </BlogSummaryText>
+      </Grid>
     </Grid>
-    <Grid item sx={{ marginTop: "0.6rem" }}>
-      <BlogHeadingText size={size}>{post.title}</BlogHeadingText>
-    </Grid>
-    <Grid item sx={{ marginTop: "2rem" }}>
-      <BlogSummaryText size={size}>
-        {truncate({
-          words: post.summary,
+
+    <Grid
+      container
+      sx={{
+        flexDirection: { xs: "row-reverse", sm: "row" },
+        justifyContent: { xs: "flex-start", sm: "space-between" },
+        gap: { xs: "1rem", sm: "0" },
+        marginTop: { xs: "1rem", sm: "1.5rem" },
+      }}
+      alignItems={"flex-end"}
+    >
+      <Grid item xs={12} sm={9}>
+        {Tags({
+          tags: post.tags,
+          size: size,
         })}
-      </BlogSummaryText>
-    </Grid>
-    <Grid item sx={{ marginTop: { xs: "1rem", sm: "1.5rem" } }}>
+      </Grid>
       <Grid
         container
         sx={{
-          flexDirection: { xs: "column-reverse", sm: "row" },
-          justifyContent: { xs: "flex-start", sm: "space-between" },
-          gap: { xs: "1rem", sm: "0" },
+          // height: "100%",
+          justifyContent: { xs: "flex-start", sm: "flex-end" },
+          alignItems: { xs: "flex-start", sm: "flex-end" },
         }}
-        alignItems={"flex-start"}
+        item
+        xs={12}
+        sm={3}
       >
-        <Grid item xs={12} sm={9}>
-          {Tags({
-            tags: post.tags,
-            size: size,
-          })}
-        </Grid>
-        <Grid
-          container
+        <Link
+          href={`posts/${post?._sys?.filename?.replaceAll("/posts", "")}`}
+          color="info.main"
           sx={{
-            justifyContent: { xs: "flex-start", sm: "flex-end" },
+            color: "#6B7280",
+            ...(size
+              ? READ_MORE_LINK_VARIANTS[size as keyof {}]
+              : READ_MORE_LINK_VARIANTS[
+                  BLOG_CARD_SIZE_OPTIONS.medium as keyof {}
+                ]),
           }}
-          item
-          xs={12}
-          sm={3}
         >
-          <Link
-            href={`posts/${post.url}`}
-            color="info.main"
-            sx={{
-              color: "#6B7280",
-              ...(size
-                ? READ_MORE_LINK_VARIANTS[size as keyof {}]
-                : READ_MORE_LINK_VARIANTS[
-                    BLOG_CARD_SIZE_OPTIONS.medium as keyof {}
-                  ]),
-            }}
-          >
-            Read More
-          </Link>
-        </Grid>
+          Read More
+        </Link>
       </Grid>
     </Grid>
   </Grid>
@@ -279,42 +287,47 @@ const InteractiveList = (props: IPostListProps) => {
     variables: props.variables,
     data: props.data,
   });
-  const postsList = data?.postConnection?.edges || [];
+
+  const postList = data?.postConnection?.edges || [];
+
+  const [firstPost] = postList;
 
   return (
-    <Grid
-      container
-      // sx={{ paddingX: { xs: "4rem", sm: "9rem", xl: "12.5rem" } }}
-      className="global-spacer"
-    >
-      <Grid
+    <Grid className="global-spacer">
+      <Box
         sx={{
           paddingBlockStart: "6rem",
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "2fr 1fr" },
+          gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "2fr 1fr" },
           gridRowGap: { xs: "5rem", lg: "7rem" },
           gridColumnGap: { xs: "0", lg: "7rem" },
         }}
       >
-        <BlogPostCard post={HERO_POST} size={BLOG_CARD_SIZE_OPTIONS.large} />
+        <BlogPostCard
+          post={firstPost?.node}
+          size={BLOG_CARD_SIZE_OPTIONS.large}
+        />
         <AboutOctalogicCard />
-      </Grid>
+      </Box>
 
-      <Grid
+      <Box
         sx={{
           paddingBlock: "8rem",
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "repeat(2, 1fr)" },
+          gridTemplateColumns: {
+            xs: "minmax(0, 1fr)",
+            lg: "repeat(2, minmax(0, 1fr))",
+          },
           gridRowGap: { xs: "5rem", lg: "7rem" },
           gridColumnGap: { xs: "0", lg: "7rem" },
         }}
       >
         {React.Children.toArray(
-          POSTS.map((post) => (
-            <BlogPostCard post={post} size={BLOG_CARD_SIZE_OPTIONS.medium} />
+          postList.map(({ node }: { node: Post }) => (
+            <BlogPostCard post={node} size={BLOG_CARD_SIZE_OPTIONS.medium} />
           ))
         )}
-      </Grid>
+      </Box>
     </Grid>
   );
 };

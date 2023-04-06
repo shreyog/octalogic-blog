@@ -38,7 +38,8 @@
     "next-seo": "^6.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tinacms": "^1.4.3"
+    "tinacms": "^1.4.3",
+    "voca": "^1.4.0"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "11.10.6",
