@@ -1,10 +1,17 @@
 import { GetStaticPropsContext } from "next";
+import * as React from "react";
+import { Box, Typography } from "@mui/material";
+import { format, parseISO } from "date-fns";
 
+import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { useTina } from "tinacms/dist/react";
 
 import client from "../../../tina/__generated__/client";
 
+import Head from "@/components/head";
 import IPostProps from "@/interfaces/IPostProps";
+
+import { Post } from "@/interfaces/IPostProps";
 
 export default function Home(props: IPostProps) {
   // data passes though in production mode and data is updated to the sidebar data in edit-mode
@@ -14,22 +21,53 @@ export default function Home(props: IPostProps) {
     data: props.data,
   });
 
+  const post: Post = data?.post;
+
+  const seo = post?.seo;
+
   return (
-    <code>
-      <pre
-        style={{
-          backgroundColor: "lightgray",
+    <>
+      <Head title={seo?.title} description={seo?.description} />
+      <Box
+        sx={{
+          paddingLeft: {
+            xs: "2rem",
+            sm: "6rem",
+            md: "10rem",
+            lg: "14rem",
+          },
+          paddingRight: {
+            xs: "2rem",
+            sm: "6rem",
+            md: "10rem",
+            lg: "14rem",
+          },
         }}
       >
-        {JSON.stringify(data.post, null, 2)}
-      </pre>
-    </code>
+        <Typography sx={{ paddingBlockStart: "4rem" }}>
+          {`Updated ${format(
+            parseISO(post?.postDate) || new Date(),
+            "MMM dd, yyyy",
+          )}`}
+        </Typography>
+
+        <Typography
+          component="h1"
+          variant="h3"
+          sx={{
+            paddingY: "1.3rem",
+          }}
+        >
+          {post?.title}
+        </Typography>
+        <TinaMarkdown content={post?.body || {}} />
+      </Box>
+    </>
   );
 }
 
 export const getStaticPaths = async () => {
   const { data } = await client.queries.postConnection();
-
   if (!data?.postConnection?.edges?.length)
     return {
       paths: [],
@@ -60,11 +98,20 @@ export const getStaticProps = async (ctx: GetStaticPropsContext) => {
     relativePath: ctx.params.slug + ".md",
   });
 
+  const {
+    data: dataList,
+    query: queryList,
+    variables: variableList,
+  } = await client.queries.postConnection();
+
   return {
     props: {
       data,
       query,
       variables,
+      dataList,
+      queryList,
+      variableList,
     },
   };
 };
