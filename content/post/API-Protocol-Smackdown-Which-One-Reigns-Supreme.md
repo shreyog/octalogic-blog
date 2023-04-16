@@ -6,7 +6,7 @@ summary: >-
   SOAP is best for enterprise-level security, REST for small-to-medium projects,
   gRPC needs specialized knowledge, and GraphQL provides flexibility.
 categories: web-development
-postDate: '2023-03-26T18:30:00.000Z'
+postDate: 2023-03-12T18:30:00.000Z
 tags:
   - api
 seo:
