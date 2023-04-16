@@ -14,6 +14,9 @@ seo:
   description: >-
     Choosing the right protocol is critical for the app's success. Consider
     performance, scalability, security, implementation, and maintenance
+  image: ''
+  imageWidth: 0
+  imageHeight: 0
 ---
 
 APIs are an essential part of modern software development, allowing developers to integrate different systems and services. There are various types of API protocols available, each with its own strengths and weaknesses. In this blog post, we'll explore the most common API protocols: gRPC, REST, SOAP, and GraphQL, and examine their use cases.

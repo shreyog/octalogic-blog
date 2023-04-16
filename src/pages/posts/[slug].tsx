@@ -2,16 +2,20 @@ import { GetStaticPropsContext } from "next";
 import * as React from "react";
 import { Box, Typography } from "@mui/material";
 import { format, parseISO } from "date-fns";
+import { NextSeo, ArticleJsonLd } from "next-seo";
 
 import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { useTina } from "tinacms/dist/react";
-
 import client from "../../../tina/__generated__/client";
 
 import Head from "@/components/head";
-import IPostProps from "@/interfaces/IPostProps";
 
+import IPostProps from "@/interfaces/IPostProps";
 import { Post } from "@/interfaces/IPostProps";
+
+import { HOST } from "@/config/vars";
+
+const siteUrl = `https://${HOST}`;
 
 export default function Home(props: IPostProps) {
   // data passes though in production mode and data is updated to the sidebar data in edit-mode
@@ -22,12 +26,62 @@ export default function Home(props: IPostProps) {
   });
 
   const post: Post = data?.post;
+  console.log("🚀 ~ file: [slug].tsx:29 ~ Home ~ post:", post);
 
   const seo = post?.seo;
 
+  const postUrl = `${siteUrl}/posts/${post._sys.filename}`;
+
   return (
     <>
-      <Head title={seo?.title} description={seo?.description} />
+      <Head
+        title={seo?.title}
+        description={seo?.description}
+        canonicalUrl={postUrl}
+      />
+
+      {/* SEO Tags */}
+
+      {seo && (
+        <>
+          <NextSeo
+            openGraph={{
+              title: seo.title,
+              description: seo.description,
+              url: postUrl,
+              type: "article",
+              article: {
+                publishedTime: post.postDate,
+                modifiedTime: post.postDate,
+                section: post.categories.length ? post.categories[0] : "",
+                tags: post.tags || [],
+              },
+              images: seo.image
+                ? [
+                    {
+                      url: `${siteUrl}${seo.image}`,
+                      width: seo.imageWidth || 300,
+                      height: seo.imageHeight || 300,
+                      alt: seo.title,
+                    },
+                  ]
+                : [],
+            }}
+          />
+          <ArticleJsonLd
+            url={postUrl}
+            title={seo.title}
+            description={seo.description}
+            images={seo.image ? [`${siteUrl}${seo.image}`] : []}
+            datePublished={post.postDate}
+            dateModified={post.postDate}
+            authorName="Octalogic Tech"
+          />
+        </>
+      )}
+
+      {/* SEO Tags */}
+
       <Box
         sx={{
           paddingLeft: {

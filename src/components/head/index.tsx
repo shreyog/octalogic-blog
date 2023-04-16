@@ -7,9 +7,9 @@ import {
 } from "next-seo";
 import NextHeader from "next/head";
 
-import { host, isLive } from "@/config/vars";
+import { HOST, IS_LIVE } from "@/config/vars";
 
-const siteUrl = `https://${host}`;
+const siteUrl = `https://${HOST}`;
 
 const DESCRIPTION =
   "Octalogic Tech provides offshore mobile & web development along with remote team capabilities. We specialise in custom Web Apps, Cross Platform Mobile Apps and Websites.";
@@ -32,8 +32,8 @@ const Head = ({
   <>
     <NextSeo
       title={title}
-      noindex={!isLive}
-      nofollow={!isLive}
+      noindex={!IS_LIVE}
+      nofollow={!IS_LIVE}
       description={description}
       canonical={canonicalUrl.replace(/\/$/, "")} // remove slash at the end
       twitter={{
@@ -108,7 +108,7 @@ const Head = ({
           availableLanguage: ["English", "Hindi", "Konkani"],
         },
       ]}
-      sameAs={[`https://www.${host}`]}
+      sameAs={[`https://www.${HOST}`]}
       url={siteUrl}
     />
 
@@ -131,7 +131,7 @@ const Head = ({
         longitude: "73.8193395",
       }}
       images={[`${siteUrl}/images/logos/O-Only.png`]}
-      sameAs={[`https://www.${host}`]}
+      sameAs={[`https://www.${HOST}`]}
       openingHours={[
         {
           opens: "10:00",

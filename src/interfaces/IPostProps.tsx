@@ -55,6 +55,9 @@ export interface SEO {
   __typename: string;
   title: string;
   description: string;
+  image?: string | null;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
 }
 
 export interface Variables {

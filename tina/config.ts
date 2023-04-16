@@ -3,6 +3,25 @@ import { defineConfig } from "tinacms";
 // Your hosting provider likely exposes this as an environment variable
 const branch = process.env.HEAD || process.env.VERCEL_GIT_COMMIT_REF || "main";
 
+export const CATEGORIES: { value: string; label: string }[] = [
+  {
+    value: "web-development",
+    label: "Web Development",
+  },
+  {
+    value: "mobile-development",
+    label: "Mobile Development",
+  },
+  {
+    value: "devops",
+    label: "Devops",
+  },
+  {
+    value: "sysops",
+    label: "Sysops",
+  },
+];
+
 export default defineConfig({
   branch,
   clientId: process.env.NEXT_PUBLIC_TINA_CLIENT_ID as string,
@@ -71,17 +90,7 @@ export default defineConfig({
             name: "categories",
             type: "string",
             required: true,
-            // TODO: add more categories
-            options: [
-              {
-                value: "web-development",
-                label: "Web Development",
-              },
-              {
-                value: "mobile-development",
-                label: "Mobile Development",
-              },
-            ],
+            options: CATEGORIES,
           },
           {
             name: "postDate",
@@ -106,7 +115,7 @@ export default defineConfig({
             label: "SEO",
             name: "seo",
             type: "object",
-            required: true,
+            required: false,
             fields: [
               {
                 type: "string",
@@ -116,7 +125,6 @@ export default defineConfig({
                 ui: {
                   validate: (value: string) => {
                     if (value?.length > 60) {
-                      // TODO: add validation for SEO title
                       return "Title cannot be more than 60 characters long";
                     }
                   },
@@ -131,10 +139,35 @@ export default defineConfig({
                   component: "textarea",
                   validate: (value: string) => {
                     if (value?.length > 140) {
-                      // TODO: add validation for SEO description
                       return "Title cannot be more than 140 characters long";
                     }
                   },
+                },
+              },
+              {
+                name: "image",
+                type: "image",
+                label: "SEO Image",
+                description:
+                  "A 300x300 image that will be displayed whenever a link is posted",
+                required: false,
+              },
+              {
+                name: "imageWidth",
+                type: "number",
+                label: "Image Width",
+                required: false,
+                ui: {
+                  component: "number",
+                },
+              },
+              {
+                name: "imageHeight",
+                type: "number",
+                label: "Image Height",
+                required: false,
+                ui: {
+                  component: "number",
                 },
               },
             ],
