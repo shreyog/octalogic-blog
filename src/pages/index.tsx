@@ -1,7 +1,6 @@
 import * as React from "react";
 
-import Grid from "@mui/material/Grid";
-import { Box } from "@mui/material";
+import { Grid, Box, Button } from "@mui/material";
 
 import { useTina } from "tinacms/dist/react";
 import client from "../../tina/__generated__/client";
@@ -10,36 +9,77 @@ import HeroPost from "@/components/posts/HeroPost";
 import BlogPost from "@/components/posts/BlogPost";
 import AboutCard from "@/components/cards/AboutCard";
 
-import IPostListProps from "@/interfaces/IPostListProps";
+import IPostListProps, {
+  Edge,
+  Data,
+  PageInfo,
+} from "@/interfaces/IPostListProps";
 
 import { Post } from "@/interfaces/IPostProps";
 
 const InteractiveList = (props: IPostListProps) => {
-  // data passes though in production mode and data is updated to the sidebar data in edit-mode
-  const { data } = useTina({
-    query: props.query,
-    variables: props.variables,
-    data: props.data,
+  const [pageInfo, setPageInfo] = React.useState<undefined | PageInfo>(
+    undefined
+  );
+  const [posts, setPosts] = React.useState<Edge[]>([]);
+  const [query, setQuery] = React.useState<{
+    query: string;
+    variables: object;
+    data: object;
+  }>({ query: "", variables: {}, data: {} });
+
+  React.useEffect(() => {
+    setQuery({
+      data: props.posts.data,
+      query: props.posts.query,
+      variables: props.posts.variables,
+    });
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const queryPosts = async () => {
+    const { data, query, variables } = await client.queries.postConnection({
+      ...props.posts.variables,
+      before: pageInfo?.endCursor,
+    });
+    setQuery({ data, query, variables });
+  };
+
+  const { data: fetchedPosts }: { data: object } = useTina(query);
+
+  const paginatePosts = ({ latestPosts }: { latestPosts: Data }) => {
+    const postList = latestPosts?.postConnection?.edges || [];
+    setPageInfo(latestPosts?.postConnection?.pageInfo || {});
+    setPosts([...posts, ...postList]);
+  };
+
+  React.useEffect(() => {
+    if (Object.keys(fetchedPosts).length > 0) {
+      paginatePosts({ latestPosts: fetchedPosts as Data });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchedPosts]);
+
+  const { data: fetchedHeroPost } = useTina({
+    data: props.heroPost.data,
+    query: props.heroPost.query,
+    variables: props.heroPost.variables,
   });
 
-  const postList = data?.postConnection?.edges || [];
-
-  const [firstPost] = postList;
+  const [heroPost] = fetchedHeroPost?.postConnection?.edges || [];
 
   return (
     <Grid className="global-spacer">
       <Box
         sx={{
           paddingBlockStart: "4rem",
-          // display: "grid",
-          // gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "2fr 1fr" },
           display: "flex",
           flexDirection: { xs: "column-reverse", lg: "row" },
           gridRowGap: { xs: "5rem", lg: "7rem" },
           gridColumnGap: { xs: "0", lg: "7rem" },
         }}
       >
-        <HeroPost post={firstPost?.node} />
+        <HeroPost post={heroPost?.node} />
         <AboutCard />
       </Box>
 
@@ -56,7 +96,14 @@ const InteractiveList = (props: IPostListProps) => {
         }}
       >
         {React.Children.toArray(
-          postList.map(({ node }: { node: Post }) => <BlogPost post={node} />)
+          posts.map(({ node }: { node: Post }) => <BlogPost post={node} />)
+        )}
+      </Box>
+      <Box
+        sx={{ display: "grid", placeItems: "center", paddingBlockEnd: "2rem" }}
+      >
+        {!!pageInfo?.hasPreviousPage && (
+          <Button onClick={queryPosts}>Load More</Button>
         )}
       </Box>
     </Grid>
@@ -66,16 +113,29 @@ const InteractiveList = (props: IPostListProps) => {
 export const getStaticProps = async () => {
   try {
     const { data, query, variables } = await client.queries.postConnection({
-      first: 10,
+      filter: { isHeroPost: { eq: false } },
+      sort: "postDate",
+      last: 4,
     });
 
-    //TODO: add code for pagination
+    const {
+      data: heroData,
+      query: heroQuery,
+      variables: heroVariables,
+    } = await client.queries.postConnection({
+      filter: { isHeroPost: { eq: true } },
+      sort: "postDate",
+      last: 1,
+    });
 
     return {
       props: {
-        data,
-        query,
-        variables,
+        posts: { data, query, variables },
+        heroPost: {
+          data: heroData,
+          query: heroQuery,
+          variables: heroVariables,
+        },
       },
     };
   } catch (e) {
